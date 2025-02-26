@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <!-- Metadatos básicos -->
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <!-- Metadatos para dispositivos móviles -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <!-- Metadatos del sitio -->
+  <title>Juguemos Huevadas</title>
+  <meta name="keywords" content="juego de cartas, fiesta, alcohol, retos, huevadas">
+  <meta name="description" content="Juego de cartas para una fiesta con alcohol, 'Juguemos Huevadas'. Muestra una carta y un reto aleatorio para animar la fiesta.">
+  <meta name="author" content="Tu Nombre">
+  <!-- Favicon -->
+  <link rel="icon" href="images/fevicon.png" type="image/gif" />
+  <!-- CSS de Bootstrap (opcional para mejorar la responsividad) -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <!-- CSS principal -->
+  <style>
+    /* Estilos personalizados para un ambiente sensual y atrevido */
+    body, html {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background-color: #121212; /* Negro elegante */
+      color: #fff;
+    }
+    .container {
+      width: 90%;
+      max-width: 600px;
+      margin: 50px auto;
+      text-align: center;
+      background-color: #222; /* Fondo oscuro */
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+      border: 2px solid #D4AF37; /* Oro metálico */
+    }
+    h1 {
+      color: #D4AF37; /* Oro metálico */
+      font-size: 2em;
+      margin-bottom: 20px;
+    }
+    button {
+      background-color: #C70039; /* Rojo pasión */
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      font-size: 16px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 20px 0;
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background-color: #FF1493; /* Rosa fucsia */
+    }
+    .card-display {
+      background-color: #800020; /* Burdeos */
+      color: #fff;
+      padding: 15px;
+      border-radius: 5px;
+      min-height: 80px;
+      margin-bottom: 10px;
+      font-size: 1.5em;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .challenge {
+      background-color: #4B0082; /* Morado oscuro */
+      color: #fff;
+      padding: 10px;
+      border-radius: 5px;
+      min-height: 50px;
+      font-size: 1.2em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    /* Estilo para el mensaje final */
+    .final-message {
+      font-size: 2em;
+      font-weight: bold;
+      color: #FF1493; /* Rosa fucsia para resaltar */
+      margin-top: 20px;
+    }
+    /* Ajustes responsivos */
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 1.5em;
+      }
+      .card-display, .challenge {
+        font-size: 1em;
+        padding: 10px;
+      }
+      button {
+        padding: 8px 16px;
+        font-size: 14px;
+      }
+      .final-message {
+        font-size: 1.5em;
+      }
+    }
+  </style>
+  <!-- CSS para diseños responsivos adicionales (si se requiere) -->
+  <link rel="stylesheet" href="css/responsive.css">
+  <!-- CSS para barra de desplazamiento personalizada (opcional) -->
+  <link rel="stylesheet" href="css/jquery.mCustomScrollbar.min.css">
+  <!-- Estilos para versiones antiguas de IE -->
+  <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Juguemos Huevadas</h1>
+    <button id="showCard">Mostrar Carta</button>
+    <div class="card-display" id="cardDisplay">Aquí aparecerá la carta</div>
+    <div class="challenge" id="challengeDisplay">Aquí aparecerá el reto</div>
+    <button id="restartGame" style="display: none;">Reiniciar juego</button>
+  </div>
+
+  <script>
+    // Definición única de cartas y retos
+    const cards = [
+      { card: "A",  challenge: "Elige quien toma" },
+      { card: "2",  challenge: "Salvas de tomar" },
+      { card: "3",  challenge: "Toma el que más (no se puede repetir o tomas 1 shot)" },
+      { card: "4",  challenge: "Toman todos los solteros" },
+      { card: "5",  challenge: "Toman todas las personas opuestas a tu género" },
+      { card: "6",  challenge: "Haz un reto o toma 2 shots" },
+      { card: "7",  challenge: "Toman los que han enviado su pack alguna vez" },
+      { card: "8",  challenge: "Toma el más joven/viejo" },
+      { card: "9",  challenge: "Di tu pose favorita o toma 2 shots" },
+      { card: "10", challenge: "Toman los que estén mirando el teléfono" },
+      { card: "J",  challenge: "Dale un beso al de alado o toma 2 shots los 2" },
+      { card: "Q",  challenge: "Sácate una prenda o toma 2 shots" },
+      { card: "K",  challenge: "Yo nunca nunca/ mi barquito de papel" }
+    ];
+
+    let deck = [];
+
+    // Función para inicializar el mazo con 4 ejemplares de cada carta (total 52 cartas)
+    function initializeDeck() {
+      deck = [];
+      cards.forEach(item => {
+        for (let i = 0; i < 4; i++) {
+          deck.push(item);
+        }
+      });
+    }
+    initializeDeck();
+
+    // Función para mostrar una carta aleatoria y su reto
+    function showRandomCard() {
+      if (deck.length === 0) {
+        document.getElementById('cardDisplay').textContent = "";
+        document.getElementById('challengeDisplay').innerHTML = '<span class="final-message">Se acabaron las cartas, haz un reto difícil puesto por los mismos jugadores</span>';
+        document.getElementById('showCard').disabled = true;
+        document.getElementById('restartGame').style.display = "inline-block";
+        return;
+      }
+      const randomIndex = Math.floor(Math.random() * deck.length);
+      const selectedCard = deck.splice(randomIndex, 1)[0]; // Se remueve la carta del mazo
+      document.getElementById('cardDisplay').textContent = "Carta: " + selectedCard.card;
+      document.getElementById('challengeDisplay').textContent = "Reto: " + selectedCard.challenge;
+    }
+
+    // Evento para mostrar carta
+    document.getElementById('showCard').addEventListener('click', showRandomCard);
+
+    // Función para reiniciar el juego
+    function restartGame() {
+      initializeDeck();
+      document.getElementById('cardDisplay').textContent = "Aquí aparecerá la carta";
+      document.getElementById('challengeDisplay').textContent = "Aquí aparecerá el reto";
+      document.getElementById('showCard').disabled = false;
+      document.getElementById('restartGame').style.display = "none";
+    }
+
+    // Evento para reiniciar el juego
+    document.getElementById('restartGame').addEventListener('click', restartGame);
+  </script>
+  <!-- Optional JavaScript: jQuery, Popper.js y Bootstrap JS -->
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
